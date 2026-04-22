@@ -106,12 +106,11 @@ impl Default for Line {
 }
 
 impl TryFrom<&str> for Line {
-    // TODO
-    type Error = ();
+    type Error = LineError;
 
     fn try_from(s: &str) -> Result<Self, Self::Error> {
         if s.chars().count() > 90 {
-            return Err(());
+            return Err(LineError::FromStrTooLong);
         }
 
         Ok(Self {
@@ -136,6 +135,15 @@ impl std::fmt::Debug for Line {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(&self.inner)
     }
+}
+
+/* ---------- */
+
+/// Kind of errors that might happen when manipulating a [`Line`].
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum LineError {
+    /// The given string is too long.
+    FromStrTooLong,
 }
 
 /* ---------- */
