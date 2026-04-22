@@ -1,0 +1,6 @@
+[package]
+name = "ic10-sim-program"
+edition.workspace = true
+version.workspace = true
+
+[dependencies]
