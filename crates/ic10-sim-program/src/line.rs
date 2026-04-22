@@ -29,7 +29,12 @@ impl Line {
             return;
         }
 
-        let pos = self.len().min(pos);
+        if pos >= self.len() {
+            self.inner.push(c);
+            return;
+        }
+
+        let pos = self.get_char_true_pos_at(pos).expect("Out of bound access");
         self.inner.insert(pos, c);
     }
 
@@ -46,12 +51,7 @@ impl Line {
 
         let len = self.len();
         let pos = if pos >= len { len - 1 } else { pos };
-
-        let (pos, _) = self
-            .inner
-            .char_indices()
-            .nth(pos)
-            .expect("Out of bound access");
+        let pos = self.get_char_true_pos_at(pos).expect("Out of bound access");
 
         self.inner.remove(pos);
     }
@@ -72,6 +72,14 @@ impl Line {
     #[inline(always)]
     pub fn is_full(&self) -> bool {
         self.len() >= Self::MAX_LENGTH
+    }
+
+    /// Returns the true position of the character at the given `pos` with respect to the UTF-8 character boundary.
+    ///
+    /// Returns `None` if the given position is out of the line's bounds.
+    #[inline]
+    fn get_char_true_pos_at(&self, pos: usize) -> Option<usize> {
+        self.inner.char_indices().nth(pos).map(|(pos, _)| pos)
     }
 }
 
@@ -187,7 +195,7 @@ mod tests {
     #[test]
     fn remove_char_at() {
         let base = "Hello😀, World!";
-        let mut line = Line::try_from(base).expect("A valid line");
+        let mut line = Line::try_from(base).expect("valid line");
 
         line.remove_char_at(6);
         assert_eq!(line.len(), base.chars().count() - 1);
@@ -205,10 +213,20 @@ mod tests {
     #[test]
     fn remove_char_at_big_idx() {
         let base = "Hello😀, World!";
-        let mut line = Line::try_from(base).expect("A valid line");
+        let mut line = Line::try_from(base).expect("valid line");
 
         line.remove_char_at(Line::MAX_LENGTH);
         assert_eq!(line.len(), base.chars().count() - 1);
         assert_eq!(line, "Hello😀, World");
+    }
+
+    #[test]
+    fn get_char_true_pos_at() {
+        let base = "😀a";
+        let line = Line::try_from(base).expect("valid line");
+
+        assert_eq!(line.get_char_true_pos_at(0), Some(0));
+        assert_eq!(line.get_char_true_pos_at(1), Some(4));
+        assert_eq!(line.get_char_true_pos_at(2), None);
     }
 }
