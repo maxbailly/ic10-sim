@@ -33,6 +33,29 @@ impl Line {
         self.inner.insert(pos, c);
     }
 
+    /// Removes a character at `pos` from the string.
+    ///
+    /// If the `pos` index is greater than the line's length, the last character is removed
+    /// from the line.
+    ///
+    /// This function does nothing if the line is empty.
+    pub fn remove_char_at(&mut self, pos: usize) {
+        if self.is_empty() {
+            return;
+        }
+
+        let len = self.len();
+        let pos = if pos >= len { len - 1 } else { pos };
+
+        let (pos, _) = self
+            .inner
+            .char_indices()
+            .nth(pos)
+            .expect("Out of bound access");
+
+        self.inner.remove(pos);
+    }
+
     /// Returns the number of unicode characters in the string.
     #[inline(always)]
     pub fn len(&self) -> usize {
@@ -159,5 +182,33 @@ mod tests {
         line.insert_char_at(0, '😀');
         assert_eq!(line.len(), truth.chars().count());
         assert_eq!(line, truth.as_str())
+    }
+
+    #[test]
+    fn remove_char_at() {
+        let base = "Hello😀, World!";
+        let mut line = Line::try_from(base).expect("A valid line");
+
+        line.remove_char_at(6);
+        assert_eq!(line.len(), base.chars().count() - 1);
+        assert_eq!(line, "Hello😀 World!");
+    }
+
+    #[test]
+    fn remove_char_at_empty() {
+        let mut line = Line::default();
+
+        line.remove_char_at(0);
+        assert!(line.is_empty())
+    }
+
+    #[test]
+    fn remove_char_at_big_idx() {
+        let base = "Hello😀, World!";
+        let mut line = Line::try_from(base).expect("A valid line");
+
+        line.remove_char_at(Line::MAX_LENGTH);
+        assert_eq!(line.len(), base.chars().count() - 1);
+        assert_eq!(line, "Hello😀, World");
     }
 }
