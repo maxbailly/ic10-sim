@@ -51,9 +51,23 @@ impl Line {
 
         let len = self.len();
         let pos = if pos >= len { len - 1 } else { pos };
-        let pos = self.get_char_true_pos_at(pos).expect("Out of bound access");
+        let pos = self
+            .get_char_true_pos_at(pos)
+            .expect("Out of line's bound access");
 
         self.inner.remove(pos);
+    }
+
+    /// Replaces the character at the position `pos` by the given character `c`.
+    ///
+    /// If the position is greater than the line's length, this function does nothing.
+    pub fn replace_char_at(&mut self, pos: usize, c: char) {
+        let Some((pos, to_replace)) = self.inner.char_indices().nth(pos) else {
+            return;
+        };
+
+        self.inner
+            .replace_range(pos..pos + to_replace.len_utf8(), &c.to_string());
     }
 
     /// Returns the number of unicode characters in the string.
@@ -218,6 +232,34 @@ mod tests {
         line.remove_char_at(Line::MAX_LENGTH);
         assert_eq!(line.len(), base.chars().count() - 1);
         assert_eq!(line, "Hello😀, World");
+    }
+
+    #[test]
+    fn replace_char_at() {
+        let base = "Hell😀, World!";
+        let mut line = Line::try_from(base).expect("valid line");
+
+        line.replace_char_at(4, 'o');
+        assert_eq!(line.len(), base.chars().count());
+        assert_eq!(line, "Hello, World!");
+    }
+
+    #[test]
+    fn replace_char_at_out_of_bounds() {
+        let base = "Hello, World!";
+        let mut line = Line::try_from(base).expect("valid line");
+
+        line.replace_char_at(Line::MAX_LENGTH, 'o');
+        assert_eq!(line.len(), base.chars().count());
+        assert_eq!(line, "Hello, World!");
+    }
+
+    #[test]
+    fn replace_char_at_empty() {
+        let mut line = Line::default();
+
+        line.replace_char_at(0, 'o');
+        assert!(line.is_empty());
     }
 
     #[test]
