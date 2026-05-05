@@ -145,7 +145,7 @@ mod tests {
     #[test]
     fn from_lines_valid_chars_limit() {
         const NLINES: usize = 64;
-        let s: String = std::iter::repeat_n('a', Program::MAX_CHARACTERS / NLINES).collect();
+        let s: String = std::iter::repeat_n('😀', Program::MAX_CHARACTERS / NLINES).collect();
         let truth: Vec<&str> = std::iter::repeat_n(s.as_str(), NLINES).collect();
         let prog = Program::from_lines(&truth).expect("valid lines");
 
