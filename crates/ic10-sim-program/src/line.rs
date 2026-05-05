@@ -146,6 +146,15 @@ pub enum LineError {
     FromStrTooLong,
 }
 
+impl std::error::Error for LineError {}
+
+impl std::fmt::Display for LineError {
+    #[inline(always)]
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str("line exceeds the maximum allowed number of character")
+    }
+}
+
 /* ---------- */
 
 #[cfg(test)]
