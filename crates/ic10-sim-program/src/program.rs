@@ -1,4 +1,4 @@
-use crate::{Line, line::LineError};
+use crate::line::{Line, LineError};
 
 /* ---------- */
 
@@ -54,6 +54,39 @@ impl Program {
         })?;
 
         Ok(prog)
+    }
+
+    /// Inserts a character `c` at `line` and `col`.
+    ///
+    /// # Notes
+    ///
+    /// * If the line or the program is full, the character ins't inserted, this function does nothing.
+    /// * If the program is empty, a new line containing the given character is created at the beginning of the program.
+    /// * If the `line` index exceeds the number of lines in the program, the character is inserted in the last line.
+    /// * If the `col` index exceeds the length of the line, the character is inserted at the end of the line.
+    // TODO: we might want to return the given character it can't be inserted.
+    pub fn insert_char(&mut self, line: usize, col: usize, c: char) {
+        if self.lines.is_empty() {
+            let new_line = self.lines.push_mut(Line::default());
+            new_line.insert_char_at(0, c);
+            return;
+        }
+
+        if self.char_count() >= Self::MAX_CHARACTERS {
+            return;
+        }
+
+        let nb_lines = self.lines.len();
+        let line_idx = if line >= nb_lines { nb_lines - 1 } else { line };
+        let line = &mut self.lines[line_idx];
+
+        line.insert_char_at(col, c);
+    }
+
+    /// Returns the number of character in the program.
+    #[inline(always)]
+    fn char_count(&self) -> usize {
+        self.lines.iter().map(|line| line.len()).sum::<usize>()
     }
 }
 
@@ -158,7 +191,7 @@ mod tests {
         let truth = ["a"; Program::MAX_LINES + 1];
         let err = Program::from_lines(&truth).expect_err("should fail: contains too many lines");
 
-        assert_eq!(err, ProgramError::TooManyLines)
+        assert_eq!(err, ProgramError::TooManyLines);
     }
 
     #[test]
@@ -169,7 +202,7 @@ mod tests {
         truth.push("a");
 
         let err = Program::from_lines(&truth).expect_err("should fail: too many chars");
-        assert_eq!(err, ProgramError::TooManyChars)
+        assert_eq!(err, ProgramError::TooManyChars);
     }
 
     #[test]
@@ -187,6 +220,51 @@ mod tests {
                 line_nb: 1,
                 error: LineError::FromStrTooLong
             }
-        )
+        );
+    }
+
+    #[test]
+    fn insert_char() {
+        let mut prog = Program::from_lines(&["Hllo", "World!"]).expect("valid lines");
+
+        prog.insert_char(0, 1, 'e');
+        assert_eq!(prog.lines, ["Hello", "World!"]);
+    }
+
+    #[test]
+    fn insert_char_empty_program() {
+        let mut prog = Program::default();
+
+        prog.insert_char(1, 1, 'a');
+        assert_eq!(prog.lines, ["a"]);
+    }
+
+    #[test]
+    fn insert_char_index_too_large() {
+        let mut prog = Program::from_lines(&["Hello", "World"]).expect("valid lines");
+
+        prog.insert_char(Program::MAX_LINES + 1, Line::MAX_LENGTH + 1, '!');
+        assert_eq!(prog.lines, ["Hello", "World!"]);
+    }
+
+    #[test]
+    fn insert_char_program_full() {
+        const NLINES: usize = 64;
+        let s: String = std::iter::repeat_n('😀', Program::MAX_CHARACTERS / NLINES).collect();
+        let truth: Vec<&str> = std::iter::repeat_n(s.as_str(), NLINES).collect();
+        let mut prog = Program::from_lines(&truth).expect("valid lines");
+
+        prog.insert_char(0, 0, 'a');
+        assert_eq!(prog.lines, truth);
+    }
+
+    #[test]
+    fn insert_char_line_full() {
+        let s: String = std::iter::repeat_n('a', Line::MAX_LENGTH).collect();
+        let truth = [s.as_str()];
+        let mut prog = Program::from_lines(&truth).expect("valid line");
+
+        prog.insert_char(0, 0, 'a');
+        assert_eq!(prog.lines, truth);
     }
 }
