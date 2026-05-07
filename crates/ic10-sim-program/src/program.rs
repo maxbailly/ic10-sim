@@ -98,6 +98,24 @@ impl Program {
         self.lines.insert(idx, Line::default());
     }
 
+    /// Removes a character at the `col` index in the given `line`.
+    ///
+    /// If the line is empty, this function does nothing.
+    ///
+    /// If the `line` index exceeds the number of lines in the program, the character will be removed from the last line.
+    /// Similarily, if the `col` index exceeds the line's length, the last character will be removed from it.
+    pub fn remove_char(&mut self, line: usize, col: usize) {
+        if self.lines.is_empty() {
+            return;
+        }
+
+        let nb_lines = self.lines.len();
+        let line_idx = if line >= nb_lines { nb_lines - 1 } else { line };
+        let line = &mut self.lines[line_idx];
+
+        line.remove_char_at(col);
+    }
+
     /// Returns the number of character in the program.
     #[inline(always)]
     fn char_count(&self) -> usize {
@@ -314,5 +332,29 @@ mod tests {
 
         prog.insert_new_line(Program::MAX_LINES);
         assert_eq!(prog.lines, &["Hello", "World", ""]);
+    }
+
+    #[test]
+    fn remove_char() {
+        let mut prog = Program::from_lines(&["Hello", "World!"]).expect("valid lines");
+
+        prog.remove_char(0, 0);
+        assert_eq!(prog.lines, &["ello", "World!"]);
+    }
+
+    #[test]
+    fn remove_char_indexes_too_big() {
+        let mut prog = Program::from_lines(&["Hello", "World!"]).expect("valid lines");
+
+        prog.remove_char(Program::MAX_LINES, Line::MAX_LENGTH);
+        assert_eq!(prog.lines, &["Hello", "World"]);
+    }
+
+    #[test]
+    fn remove_char_empty_program() {
+        let mut prog = Program::default();
+
+        prog.remove_char(Program::MAX_LINES, Line::MAX_LENGTH);
+        assert!(prog.lines.is_empty());
     }
 }
