@@ -1,23 +1,22 @@
-use ratatui::crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
+use ratatui::crossterm::event::{Event, KeyCode, KeyEvent};
 
 /* ---------- */
 
-/// Actions that must be handled from whatever state the UI is.
+/// Actions that must be handled when the app is idling.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub(crate) enum GlobalAction {
+pub(crate) enum IdleAction {
     /// Quit the TUI application.
     Quit,
 }
 
-impl GlobalAction {
-    /// Converts an [`Event`] to a [`GlobalAction`] if the given event matches.
+impl IdleAction {
+    /// Converts an [`Event`] to a [`IdleAction`] if the given event matches.
     ///
     /// If the event doesn't match anything, returns `None`.
     pub(crate) fn from_event(event: &Event) -> Option<Self> {
         match event {
             Event::Key(KeyEvent {
-                code: KeyCode::Char('c'),
-                modifiers: KeyModifiers::CONTROL,
+                code: KeyCode::Char('q'),
                 ..
             }) => Some(Self::Quit),
             // Unmatching inputs
