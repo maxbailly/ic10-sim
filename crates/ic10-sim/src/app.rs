@@ -17,6 +17,8 @@ use crate::editor::Editor;
 pub(crate) struct App {
     /// Is the app currently running?
     running: bool,
+    /// App state.
+    state: AppState,
 
     /// Editor widget.
     editor: Editor,
@@ -24,20 +26,35 @@ pub(crate) struct App {
 
 impl App {
     /// Creates a new default [`App`].
+    #[inline(always)]
     fn new() -> Self {
         Self {
             running: true,
+            state: AppState::default(),
             editor: Editor::new(),
         }
     }
 
     /// Updates the UI according the given input.
+    #[inline(always)]
     fn update(&mut self, event: Event) {
-        let event = IdleAction::from_event(&event);
+        match self.state {
+            AppState::Idle => self.handle_event(event),
+            AppState::Editing => self.editor.handle_event(&mut self.state, event),
+        }
+    }
 
-        // TODO: there's no states rn but once there is, change that to a match
-        if let Some(IdleAction::Quit) = event {
-            self.running = false
+    /// Handles event happening when the app is idling.
+    fn handle_event(&mut self, event: Event) {
+        let action = IdleAction::from_event(event);
+
+        match action {
+            Some(IdleAction::Quit) => self.running = false,
+            Some(IdleAction::StartEdition) => {
+                self.state = AppState::Editing;
+                self.editor.activate();
+            }
+            None => (),
         }
     }
 
@@ -77,6 +94,26 @@ pub(crate) fn run(terminal: &mut DefaultTerminal) -> IoResult<()> {
     }
 
     Ok(())
+}
+
+/* ---------- */
+
+/// App state.
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash)]
+pub(crate) enum AppState {
+    /// The app is idling.
+    #[default]
+    Idle,
+    /// The editor is active.
+    Editing,
+}
+
+impl AppState {
+    pub(crate) fn quit(&mut self) {
+        if let Self::Editing = *self {
+            *self = Self::Idle
+        }
+    }
 }
 
 /* ---------- */
