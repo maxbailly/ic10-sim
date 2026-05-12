@@ -7,6 +7,8 @@ use ratatui::crossterm::event::{Event, KeyCode, KeyEvent};
 pub(crate) enum EditorAction {
     /// Quit the TUI application.
     Quit,
+    /// Toggle the edition mode.
+    ToggleMode,
 }
 
 impl EditorAction {
@@ -18,6 +20,10 @@ impl EditorAction {
             Event::Key(KeyEvent {
                 code: KeyCode::Esc, ..
             }) => Some(Self::Quit),
+            Event::Key(KeyEvent {
+                code: KeyCode::Insert,
+                ..
+            }) => Some(Self::ToggleMode),
             // Unmatching inputs
             _ => None,
         }

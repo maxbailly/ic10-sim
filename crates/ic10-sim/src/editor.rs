@@ -35,6 +35,9 @@ impl Editor {
                 app_state.quit();
                 self.active = false;
             }
+            EditorAction::ToggleMode => {
+                self.mode.toggle();
+            }
         }
     }
 
@@ -76,12 +79,49 @@ enum Mode {
 }
 
 impl Mode {
+    /// Toggles the edition mode.
+    #[inline(always)]
+    fn toggle(&mut self) {
+        *self = match *self {
+            Self::Insertion => Self::Replacement,
+            Self::Replacement => Self::Insertion,
+        };
+    }
+
     /// Returns the string representation to be use as a border title.
     #[inline(always)]
     const fn as_border_title(self) -> &'static str {
         match self {
             Self::Insertion => " Insertion ",
             Self::Replacement => " Replacement ",
+        }
+    }
+}
+
+/* ---------- */
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[cfg(test)]
+    mod mode {
+        use super::*;
+
+        #[test]
+        fn default() {
+            assert_eq!(Mode::default(), Mode::Insertion)
+        }
+
+        #[test]
+        fn toggle() {
+            let mut mode = Mode::default();
+
+            mode.toggle();
+            assert_eq!(mode, Mode::Replacement);
+
+            mode.toggle();
+            assert_eq!(mode, Mode::Insertion);
         }
     }
 }
