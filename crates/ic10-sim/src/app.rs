@@ -9,18 +9,26 @@ use std::time::Duration;
 
 use crate::actions::GlobalAction;
 use crate::actions::IdleAction;
+use crate::editor::Editor;
 
 /* ---------- */
 
 /// Main UI of the app.
 pub(crate) struct App {
+    /// Is the app currently running?
     running: bool,
+
+    /// Editor widget.
+    editor: Editor,
 }
 
 impl App {
     /// Creates a new default [`App`].
     fn new() -> Self {
-        Self { running: true }
+        Self {
+            running: true,
+            editor: Editor::new(),
+        }
     }
 
     /// Updates the UI according the given input.
@@ -41,10 +49,11 @@ impl App {
 }
 
 impl Widget for &App {
-    fn render(self, _area: Rect, _buf: &mut Buffer)
+    fn render(self, area: Rect, buf: &mut Buffer)
     where
         Self: Sized,
     {
+        self.editor.render(area, buf);
     }
 }
 
