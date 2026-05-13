@@ -44,7 +44,9 @@ impl Editor {
                 self.mode.toggle();
             }
             EditorAction::AddCharacter(c) => {
-                self.program.insert_char(0, 0, c);
+                self.program
+                    .insert_char(self.cursor.line(), self.cursor.col(), c);
+                self.cursor.move_right();
             }
         }
     }
@@ -124,10 +126,28 @@ struct Cursor {
 }
 
 impl Cursor {
+    /// Returns the line position of the cursor.
+    #[inline(always)]
+    fn line(&self) -> usize {
+        self.line as usize
+    }
+
+    /// Returns the column position of the cursor.
+    #[inline(always)]
+    fn col(&self) -> usize {
+        self.col as usize
+    }
+
     /// Toggle the cursor's visibility.
     #[inline(always)]
     fn toggle(&mut self) {
         self.visible = !self.visible;
+    }
+
+    /// Moves the cursor one cell to the right.
+    #[inline(always)]
+    fn move_right(&mut self) {
+        self.col = self.col.saturating_add(1)
     }
 }
 
@@ -140,7 +160,7 @@ impl Widget for &Cursor {
             return;
         }
 
-        let abs_position = Position::new(self.line + area.x, self.col + area.y);
+        let abs_position = Position::new(self.col + area.x, self.line + area.y);
         let Some(cell) = buf.cell_mut(abs_position) else {
             return;
         };
