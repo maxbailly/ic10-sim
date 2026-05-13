@@ -91,9 +91,14 @@ impl Line {
     /// Returns the true position of the character at the given `pos` with respect to the UTF-8 character boundary.
     ///
     /// Returns `None` if the given position is out of the line's bounds.
-    #[inline]
+    #[inline(always)]
     fn get_char_true_pos_at(&self, pos: usize) -> Option<usize> {
         self.inner.char_indices().nth(pos).map(|(pos, _)| pos)
+    }
+
+    /// Returns a string slice containing the entire [`Line`].
+    pub fn as_str(&self) -> &str {
+        &self.inner
     }
 }
 
@@ -120,18 +125,21 @@ impl TryFrom<&str> for Line {
 }
 
 impl PartialEq<&str> for Line {
+    #[inline(always)]
     fn eq(&self, other: &&str) -> bool {
         self.inner == *other
     }
 }
 
 impl std::fmt::Display for Line {
+    #[inline(always)]
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(&self.inner)
     }
 }
 
 impl std::fmt::Debug for Line {
+    #[inline(always)]
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(&self.inner)
     }

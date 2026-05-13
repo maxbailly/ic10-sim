@@ -116,6 +116,11 @@ impl Program {
         line.remove_char_at(col);
     }
 
+    /// Returns an iterator over the entire lines contained in the program.
+    pub fn lines(&self) -> std::slice::Iter<'_, Line> {
+        self.lines.iter()
+    }
+
     /// Returns the number of character in the program.
     #[inline(always)]
     fn char_count(&self) -> usize {

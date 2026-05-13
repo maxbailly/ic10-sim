@@ -5,3 +5,5 @@ edition.workspace = true
 
 [dependencies]
 ratatui = "0.30.0"
+
+ic10-sim-program = { path = "../ic10-sim-program" }

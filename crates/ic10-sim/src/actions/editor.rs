@@ -9,6 +9,8 @@ pub(crate) enum EditorAction {
     Quit,
     /// Toggle the edition mode.
     ToggleMode,
+    /// Add the character to the program.
+    AddCharacter(char),
 }
 
 impl EditorAction {
@@ -24,6 +26,10 @@ impl EditorAction {
                 code: KeyCode::Insert,
                 ..
             }) => Some(Self::ToggleMode),
+            Event::Key(KeyEvent {
+                code: KeyCode::Char(c),
+                ..
+            }) => Some(Self::AddCharacter(c)),
             // Unmatching inputs
             _ => None,
         }

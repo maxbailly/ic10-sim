@@ -1,6 +1,8 @@
+use ic10_sim_program::Program;
 use ratatui::crossterm::event::Event;
 use ratatui::prelude::{Buffer, Rect};
-use ratatui::widgets::{Block, BorderType, Widget};
+use ratatui::text::Text;
+use ratatui::widgets::{Block, BorderType, Paragraph, Widget};
 
 use crate::actions::EditorAction;
 use crate::app::AppState;
@@ -12,9 +14,11 @@ use crate::app::AppState;
 pub(crate) struct Editor {
     /// Is the editor active?
     active: bool,
-
     /// Editor mode.
     mode: Mode,
+
+    /// IC10 program.
+    program: Program,
 }
 
 impl Editor {
@@ -38,6 +42,9 @@ impl Editor {
             EditorAction::ToggleMode => {
                 self.mode.toggle();
             }
+            EditorAction::AddCharacter(c) => {
+                self.program.insert_char(0, 0, c);
+            }
         }
     }
 
@@ -60,6 +67,9 @@ impl Widget for &Editor {
         } else {
             border
         };
+
+        let text = Text::from_iter(self.program.lines().map(|line| line.as_str()));
+        Paragraph::new(text).render(border.inner(area), buf);
 
         border.render(area, buf);
     }
