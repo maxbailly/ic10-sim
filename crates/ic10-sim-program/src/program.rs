@@ -105,16 +105,18 @@ impl Program {
     ///
     /// If the `line` index exceeds the number of lines in the program, the character will be removed from the last line.
     /// Similarily, if the `col` index exceeds the line's length, the last character will be removed from it.
-    pub fn remove_char(&mut self, line: usize, col: usize) {
+    ///
+    /// Returns `true` if the character is successfully removed, `false` otherwise.
+    pub fn remove_char(&mut self, line: usize, col: usize) -> bool {
         if self.lines.is_empty() {
-            return;
+            return false;
         }
 
         let nb_lines = self.lines.len();
         let line_idx = if line >= nb_lines { nb_lines - 1 } else { line };
         let line = &mut self.lines[line_idx];
 
-        line.remove_char_at(col);
+        line.remove_char_at(col)
     }
 
     /// Returns an iterator over the entire lines contained in the program.

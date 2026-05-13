@@ -47,9 +47,11 @@ impl Line {
     /// from the line.
     ///
     /// This function does nothing if the line is empty.
-    pub fn remove_char_at(&mut self, pos: usize) {
+    ///
+    /// Returns `true` if the line is successfully removed, `false` otherwise.
+    pub fn remove_char_at(&mut self, pos: usize) -> bool {
         if self.is_empty() {
-            return;
+            return false;
         }
 
         let len = self.len();
@@ -59,6 +61,8 @@ impl Line {
             .expect("Out of line's bound access");
 
         self.inner.remove(pos);
+
+        true
     }
 
     /// Replaces the character at the position `pos` by the given character `c`.
