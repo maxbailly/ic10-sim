@@ -204,7 +204,8 @@ mod tests {
         let truth = "Hello, World!";
         let mut line = Line::try_from(truth).expect("valid line");
 
-        line.insert_char_at(5, '😀');
+        let ret = line.insert_char_at(5, '😀');
+        assert!(ret);
         assert_eq!(line.len(), truth.chars().count() + 1);
         assert_eq!(line, "Hello😀, World!")
     }
@@ -214,7 +215,8 @@ mod tests {
         let truth = "Hello, World!";
         let mut line = Line::try_from(truth).expect("valid line");
 
-        line.insert_char_at(Line::MAX_LENGTH + 1, '😀');
+        let ret = line.insert_char_at(Line::MAX_LENGTH + 1, '😀');
+        assert!(ret);
         assert_eq!(line.len(), truth.chars().count() + 1);
         assert_eq!(line, "Hello, World!😀")
     }
@@ -223,7 +225,8 @@ mod tests {
     fn insert_char_at_empty_line() {
         let mut line = Line::new();
 
-        line.insert_char_at(0, '😀');
+        let ret = line.insert_char_at(0, '😀');
+        assert!(ret);
         assert_eq!(line.len(), 1);
         assert_eq!(line, "😀");
     }
@@ -233,7 +236,8 @@ mod tests {
         let truth = std::iter::repeat_n('a', Line::MAX_LENGTH).collect::<String>();
         let mut line = Line::try_from(truth.as_str()).expect("valid line");
 
-        line.insert_char_at(0, '😀');
+        let ret = line.insert_char_at(0, '😀');
+        assert!(!ret);
         assert_eq!(line.len(), truth.chars().count());
         assert_eq!(line, truth.as_str())
     }
@@ -243,7 +247,8 @@ mod tests {
         let base = "Hello😀, World!";
         let mut line = Line::try_from(base).expect("valid line");
 
-        line.remove_char_at(6);
+        let ret = line.remove_char_at(6);
+        assert!(ret);
         assert_eq!(line.len(), base.chars().count() - 1);
         assert_eq!(line, "Hello😀 World!");
     }
@@ -252,7 +257,8 @@ mod tests {
     fn remove_char_at_empty() {
         let mut line = Line::default();
 
-        line.remove_char_at(0);
+        let ret = line.remove_char_at(0);
+        assert!(!ret);
         assert!(line.is_empty())
     }
 
@@ -261,7 +267,8 @@ mod tests {
         let base = "Hello😀, World!";
         let mut line = Line::try_from(base).expect("valid line");
 
-        line.remove_char_at(Line::MAX_LENGTH);
+        let ret = line.remove_char_at(Line::MAX_LENGTH);
+        assert!(ret);
         assert_eq!(line.len(), base.chars().count() - 1);
         assert_eq!(line, "Hello😀, World");
     }

@@ -268,7 +268,8 @@ mod tests {
     fn insert_char() {
         let mut prog = Program::from_lines(&["Hllo", "World!"]).expect("valid lines");
 
-        prog.insert_char(0, 1, 'e');
+        let ret = prog.insert_char(0, 1, 'e');
+        assert!(ret);
         assert_eq!(prog.lines, ["Hello", "World!"]);
     }
 
@@ -276,7 +277,8 @@ mod tests {
     fn insert_char_empty_program() {
         let mut prog = Program::default();
 
-        prog.insert_char(1, 1, 'a');
+        let ret = prog.insert_char(1, 1, 'a');
+        assert!(ret);
         assert_eq!(prog.lines, ["a"]);
     }
 
@@ -284,7 +286,8 @@ mod tests {
     fn insert_char_index_too_large() {
         let mut prog = Program::from_lines(&["Hello", "World"]).expect("valid lines");
 
-        prog.insert_char(Program::MAX_LINES + 1, Line::MAX_LENGTH + 1, '!');
+        let ret = prog.insert_char(Program::MAX_LINES + 1, Line::MAX_LENGTH + 1, '!');
+        assert!(ret);
         assert_eq!(prog.lines, ["Hello", "World!"]);
     }
 
@@ -295,7 +298,8 @@ mod tests {
         let truth: Vec<&str> = std::iter::repeat_n(s.as_str(), NLINES).collect();
         let mut prog = Program::from_lines(&truth).expect("valid lines");
 
-        prog.insert_char(0, 0, 'a');
+        let ret = prog.insert_char(0, 0, 'a');
+        assert!(!ret);
         assert_eq!(prog.lines, truth);
     }
 
@@ -305,7 +309,8 @@ mod tests {
         let truth = [s.as_str()];
         let mut prog = Program::from_lines(&truth).expect("valid line");
 
-        prog.insert_char(0, 0, 'a');
+        let ret = prog.insert_char(0, 0, 'a');
+        assert!(!ret);
         assert_eq!(prog.lines, truth);
     }
 
