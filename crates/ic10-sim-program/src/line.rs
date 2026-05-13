@@ -22,20 +22,23 @@ impl Line {
     /// to the line.
     ///
     /// If the line is full, the character isn't inserted.
-    // TODO: if the line is full, we might want to return the non-inserted char in an option.
+    ///
+    /// Returns `true` if the character is successfully insterted. Otherwise, returns `false`.
     #[inline]
-    pub fn insert_char_at(&mut self, pos: usize, c: char) {
+    pub fn insert_char_at(&mut self, pos: usize, c: char) -> bool {
         if self.is_full() {
-            return;
+            return false;
         }
 
         if pos >= self.len() {
             self.inner.push(c);
-            return;
+            return true;
         }
 
         let pos = self.get_char_true_pos_at(pos).expect("Out of bound access");
         self.inner.insert(pos, c);
+
+        true
     }
 
     /// Removes a character at `pos` from the string.

@@ -58,29 +58,30 @@ impl Program {
 
     /// Inserts a character `c` at `line` and `col`.
     ///
+    /// Returns `true` if the character is successfully inserted, `false` otherwise.
+    ///
     /// # Notes
     ///
     /// * If the line or the program is full, the character ins't inserted, this function does nothing.
     /// * If the program is empty, a new line containing the given character is created at the beginning of the program.
     /// * If the `line` index exceeds the number of lines in the program, the character is inserted in the last line.
     /// * If the `col` index exceeds the length of the line, the character is inserted at the end of the line.
-    // TODO: we might want to return the given character it can't be inserted.
-    pub fn insert_char(&mut self, line: usize, col: usize, c: char) {
+    pub fn insert_char(&mut self, line: usize, col: usize, c: char) -> bool {
         if self.lines.is_empty() {
             let new_line = self.lines.push_mut(Line::default());
             new_line.insert_char_at(0, c);
-            return;
+            return true;
         }
 
         if self.char_count() >= Self::MAX_CHARACTERS {
-            return;
+            return false;
         }
 
         let nb_lines = self.lines.len();
         let line_idx = if line >= nb_lines { nb_lines - 1 } else { line };
         let line = &mut self.lines[line_idx];
 
-        line.insert_char_at(col, c);
+        line.insert_char_at(col, c)
     }
 
     /// Inserts a new line at the given index.

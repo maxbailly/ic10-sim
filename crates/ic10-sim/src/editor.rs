@@ -44,9 +44,12 @@ impl Editor {
                 self.mode.toggle();
             }
             EditorAction::AddCharacter(c) => {
-                self.program
-                    .insert_char(self.cursor.line(), self.cursor.col(), c);
-                self.cursor.move_right();
+                if self
+                    .program
+                    .insert_char(self.cursor.line(), self.cursor.col(), c)
+                {
+                    self.cursor.move_right();
+                }
             }
         }
     }
