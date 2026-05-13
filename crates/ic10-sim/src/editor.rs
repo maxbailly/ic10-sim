@@ -1,6 +1,8 @@
 use ic10_sim_program::Program;
 use ratatui::crossterm::event::Event;
+use ratatui::layout::Position;
 use ratatui::prelude::{Buffer, Rect};
+use ratatui::style::Style;
 use ratatui::text::Text;
 use ratatui::widgets::{Block, BorderType, Paragraph, Widget};
 
@@ -12,13 +14,11 @@ use crate::app::AppState;
 /// Editor widget
 #[derive(Debug, Default)]
 pub(crate) struct Editor {
-    /// Is the editor active?
     active: bool,
-    /// Editor mode.
     mode: Mode,
 
-    /// IC10 program.
     program: Program,
+    cursor: Cursor,
 }
 
 impl Editor {
@@ -38,6 +38,7 @@ impl Editor {
             EditorAction::Quit => {
                 app_state.quit();
                 self.active = false;
+                self.cursor.toggle();
             }
             EditorAction::ToggleMode => {
                 self.mode.toggle();
@@ -49,8 +50,10 @@ impl Editor {
     }
 
     /// Activate the editor.
+    #[inline(always)]
     pub(crate) fn activate(&mut self) {
         self.active = true;
+        self.cursor.toggle();
     }
 }
 
@@ -67,10 +70,12 @@ impl Widget for &Editor {
         } else {
             border
         };
+        let inner_area = border.inner(area);
 
         let text = Text::from_iter(self.program.lines().map(|line| line.as_str()));
-        Paragraph::new(text).render(border.inner(area), buf);
+        Paragraph::new(text).render(inner_area, buf);
 
+        self.cursor.render(inner_area, buf);
         border.render(area, buf);
     }
 }
@@ -105,6 +110,42 @@ impl Mode {
             Self::Insertion => " Insertion ",
             Self::Replacement => " Replacement ",
         }
+    }
+}
+
+/* ---------- */
+
+/// Editor cursor.
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash)]
+struct Cursor {
+    line: u16,
+    col: u16,
+    visible: bool,
+}
+
+impl Cursor {
+    /// Toggle the cursor's visibility.
+    #[inline(always)]
+    fn toggle(&mut self) {
+        self.visible = !self.visible;
+    }
+}
+
+impl Widget for &Cursor {
+    fn render(self, area: Rect, buf: &mut Buffer)
+    where
+        Self: Sized,
+    {
+        if !self.visible {
+            return;
+        }
+
+        let abs_position = Position::new(self.line + area.x, self.col + area.y);
+        let Some(cell) = buf.cell_mut(abs_position) else {
+            return;
+        };
+
+        cell.set_style(Style::new().reversed());
     }
 }
 
