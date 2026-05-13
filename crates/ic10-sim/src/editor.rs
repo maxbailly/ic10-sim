@@ -51,6 +51,14 @@ impl Editor {
                     self.cursor.move_right();
                 }
             }
+            EditorAction::RemoveCharacter => {
+                if self
+                    .program
+                    .remove_char(self.cursor.line(), self.cursor.col())
+                {
+                    self.cursor.move_left();
+                }
+            }
         }
     }
 
@@ -152,6 +160,12 @@ impl Cursor {
     fn move_right(&mut self) {
         self.col = self.col.saturating_add(1)
     }
+
+    /// Moves the cursor one cell to the right.
+    #[inline(always)]
+    fn move_left(&mut self) {
+        self.col = self.col.saturating_sub(1)
+    }
 }
 
 impl Widget for &Cursor {
@@ -196,6 +210,45 @@ mod tests {
 
             mode.toggle();
             assert_eq!(mode, Mode::Insertion);
+        }
+    }
+
+    #[cfg(test)]
+    mod cursor {
+        use super::*;
+
+        #[test]
+        fn move_left() {
+            let truth = Cursor {
+                line: 0,
+                col: 0,
+                visible: false,
+            };
+            let mut cursor = Cursor {
+                line: 0,
+                col: 1,
+                visible: false,
+            };
+
+            cursor.move_left();
+            assert_eq!(cursor, truth);
+        }
+
+        #[test]
+        fn move_right() {
+            let truth = Cursor {
+                line: 0,
+                col: 1,
+                visible: false,
+            };
+            let mut cursor = Cursor {
+                line: 0,
+                col: 0,
+                visible: false,
+            };
+
+            cursor.move_right();
+            assert_eq!(cursor, truth);
         }
     }
 }
