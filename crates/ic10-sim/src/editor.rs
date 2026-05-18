@@ -176,7 +176,7 @@ impl Cursor {
         self.col = self.col.saturating_add(1)
     }
 
-    /// Moves the cursor one cell to the right.
+    /// Moves the cursor one cell to the left.
     #[inline(always)]
     fn move_left(&mut self) {
         self.col = self.col.saturating_sub(1)
