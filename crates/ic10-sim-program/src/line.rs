@@ -77,6 +77,26 @@ impl Line {
             .replace_range(pos..pos + to_replace.len_utf8(), &c.to_string());
     }
 
+    /// Consumes and splits the line at the siven position, returning the two parts.
+    pub fn split_at(self, pos: usize) -> (Line, Line) {
+        match pos {
+            0 => (Line::new(), self),
+            pos if pos >= self.len() => (self, Line::new()),
+            _ => {
+                let idx = self
+                    .get_char_true_pos_at(pos)
+                    .expect("Out of line's bounds access");
+                let (part1, part2) = self.inner.split_at(idx);
+
+                // SAFETY:
+                // In both cases, the parts come from a valid lines so this can't fail.
+                let part1 = unsafe { Line::try_from(part1).unwrap_unchecked() };
+                let part2 = unsafe { Line::try_from(part2).unwrap_unchecked() };
+                (part1, part2)
+            }
+        }
+    }
+
     /// Returns the number of unicode characters in the string.
     #[inline(always)]
     pub fn len(&self) -> usize {
@@ -299,6 +319,33 @@ mod tests {
 
         line.replace_char_at(0, 'o');
         assert!(line.is_empty());
+    }
+
+    #[test]
+    fn split_at() {
+        let line = Line::try_from("Hello😀World!").expect("valid line");
+        let (part1, part2) = line.split_at(6);
+
+        assert_eq!(part1, "Hello😀");
+        assert_eq!(part2, "World!");
+    }
+
+    #[test]
+    fn split_at_beginning_of_line() {
+        let line = Line::try_from("Hello, World!").expect("valid line");
+        let (part1, part2) = line.split_at(0);
+
+        assert_eq!(part1, "");
+        assert_eq!(part2, "Hello, World!");
+    }
+
+    #[test]
+    fn split_at_end_of_line() {
+        let line = Line::try_from("Hello, World!").expect("valid line");
+        let (part1, part2) = line.split_at(Line::MAX_LENGTH + 1);
+
+        assert_eq!(part1, "Hello, World!");
+        assert_eq!(part2, "");
     }
 
     #[test]

@@ -84,21 +84,41 @@ impl Program {
         line.insert_char_at(col, c)
     }
 
-    /// Inserts a new line at the given index.
-    ///
-    /// If the program is full, this function does nothing.
-    ///
-    /// If the `line` index exceeds the number of lines in the program, the new line is inserted at the end.
+    /// Splits the line at `line` by insterting a new line after the character at the `col` index.
     ///
     /// Returns `true` if the line is successfully added, `false` otherwise.
+    ///
+    /// # Notes
+    ///
+    /// * If the program is full, this function does nothing.
+    /// * If the `line` index exceeds the number of lines in the program, the new line is inserted at the end.
+    /// * If the `col` index is 0, the new line will be inserted before the current line.
+    /// * If the `col` index is greater than the length of the line, the new line is inserted after the current line.
     #[inline(always)]
-    pub fn insert_new_line(&mut self, line: usize) -> bool {
+    pub fn insert_new_line_at(&mut self, line: usize, col: usize) -> bool {
         if self.lines.len() >= Self::MAX_LINES {
             return false;
         }
+        if self.lines.is_empty() {
+            self.lines.push(Line::new());
+            return true;
+        }
 
         let idx = line.min(self.lines.len());
-        self.lines.insert(idx, Line::default());
+
+        match col {
+            0 => self.lines.insert(idx, Line::default()),
+            col if col >= self.lines[idx].len() => self.lines.push(Line::new()),
+            _ => {
+                let line_to_split = self.lines.remove(idx);
+                let (part1, part2) = line_to_split.split_at(col);
+
+                self.lines.insert(idx, part2);
+                self.lines.insert(idx, part1);
+            }
+        }
+
+        // self.lines.insert(idx, Line::default());
 
         true
     }
@@ -320,18 +340,18 @@ mod tests {
 
     #[test]
     fn insert_line() {
-        let mut prog = Program::from_lines(&["Hello", "World"]).expect("valid lines");
+        let mut prog = Program::from_lines(&["Hello", "World!"]).expect("valid lines");
 
-        let ret = prog.insert_new_line(1);
+        let ret = prog.insert_new_line_at(1, 5);
         assert!(ret);
-        assert_eq!(prog.lines, ["Hello", "", "World"]);
+        assert_eq!(prog.lines, ["Hello", "World", "!"]);
     }
 
     #[test]
     fn insert_line_empty_program() {
         let mut prog = Program::default();
 
-        let ret = prog.insert_new_line(1);
+        let ret = prog.insert_new_line_at(1, 0);
         assert!(ret);
         assert_eq!(prog.lines, [""]);
     }
@@ -341,7 +361,7 @@ mod tests {
         let truth = std::iter::repeat_n("", Program::MAX_LINES).collect::<Vec<_>>();
         let mut prog = Program::from_lines(&truth).expect("valid lines");
 
-        let ret = prog.insert_new_line(0);
+        let ret = prog.insert_new_line_at(0, 0);
         assert!(!ret);
         assert_eq!(prog.lines, truth);
     }
@@ -350,7 +370,7 @@ mod tests {
     fn insert_line_index_too_large() {
         let mut prog = Program::from_lines(&["Hello", "World"]).expect("valid lines");
 
-        let ret = prog.insert_new_line(Program::MAX_LINES);
+        let ret = prog.insert_new_line_at(Program::MAX_LINES, 0);
         assert!(ret);
         assert_eq!(prog.lines, &["Hello", "World", ""]);
     }
