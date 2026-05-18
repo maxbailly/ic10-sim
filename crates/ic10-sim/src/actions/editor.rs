@@ -13,6 +13,8 @@ pub(crate) enum EditorAction {
     AddCharacter(char),
     /// Removes a character from the program.
     RemoveCharacter,
+    /// Insert a new line in the program
+    InsertNewLine,
 }
 
 impl EditorAction {
@@ -36,6 +38,10 @@ impl EditorAction {
                 code: KeyCode::Backspace,
                 ..
             }) => Some(Self::RemoveCharacter),
+            Event::Key(KeyEvent {
+                code: KeyCode::Enter,
+                ..
+            }) => Some(Self::InsertNewLine),
             // Unmatching inputs
             _ => None,
         }

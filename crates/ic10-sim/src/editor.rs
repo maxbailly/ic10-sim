@@ -59,6 +59,14 @@ impl Editor {
                     self.cursor.move_left();
                 }
             }
+            EditorAction::InsertNewLine => {
+                if self
+                    .program
+                    .insert_new_line_at(self.cursor.line(), self.cursor.col())
+                {
+                    self.cursor.set_position(self.cursor.line() + 1, 0);
+                }
+            }
         }
     }
 
@@ -153,6 +161,13 @@ impl Cursor {
     #[inline(always)]
     fn toggle(&mut self) {
         self.visible = !self.visible;
+    }
+
+    /// Sets the cursor position.
+    #[inline(always)]
+    fn set_position(&mut self, line: usize, col: usize) {
+        self.line = line.min(u16::MAX as usize) as u16;
+        self.col = col.min(u16::MAX as usize) as u16;
     }
 
     /// Moves the cursor one cell to the right.
