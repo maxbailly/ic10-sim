@@ -3,7 +3,7 @@ use ratatui::crossterm::event::Event;
 use ratatui::layout::Position;
 use ratatui::prelude::{Buffer, Rect};
 use ratatui::style::Style;
-use ratatui::text::Text;
+use ratatui::text::{Line, Text};
 use ratatui::widgets::{Block, BorderType, Paragraph, Widget};
 
 use crate::actions::EditorAction;
@@ -142,12 +142,22 @@ impl Widget for &Editor {
         let border = Block::bordered()
             .border_type(BorderType::Rounded)
             .title(" Editor ");
+        let inner_area = border.inner(area);
+
         let border = if self.active {
-            border.title_bottom(self.mode.as_border_title())
+            let line_col_title = Line::from(format!(
+                " L: {}, C: {} ",
+                self.cursor.line(),
+                self.cursor.col()
+            ))
+            .alignment(ratatui::layout::HorizontalAlignment::Right);
+
+            border
+                .title_bottom(self.mode.as_border_title())
+                .title_bottom(line_col_title)
         } else {
             border
         };
-        let inner_area = border.inner(area);
 
         let text = Text::from_iter(self.program.lines().map(|line| line.as_str()));
         Paragraph::new(text).render(inner_area, buf);
