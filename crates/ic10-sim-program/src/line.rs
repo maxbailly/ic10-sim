@@ -97,6 +97,19 @@ impl Line {
         }
     }
 
+    /// Appends the given line to this line.
+    ///
+    /// Returns `None` if the resulting line doesn't exceed the [`Line`] character limit, `Some` otherwise.
+    pub fn append(&mut self, other: Line) -> Option<Line> {
+        if self.len() + other.len() > Line::MAX_LENGTH {
+            return Some(other);
+        }
+
+        self.inner.push_str(&other.inner);
+
+        None
+    }
+
     /// Returns the number of unicode characters in the string.
     #[inline(always)]
     pub fn len(&self) -> usize {
@@ -353,6 +366,44 @@ mod tests {
 
         assert_eq!(part1, "Hello, World!");
         assert_eq!(part2, "");
+    }
+
+    #[test]
+    fn append() {
+        let mut line = Line::try_from("Hello").expect("valid line");
+        let to_append = Line::try_from(", World!").expect("valid line");
+
+        let ret = line.append(to_append);
+        assert!(ret.is_none());
+        assert_eq!(line, "Hello, World!");
+    }
+
+    #[test]
+    fn append_empty() {
+        let mut line = Line::default();
+        let to_append = Line::try_from("Hello, World!").expect("valid line");
+
+        let ret = line.append(to_append);
+        assert!(ret.is_none());
+        assert_eq!(line, "Hello, World!");
+
+        let mut line = Line::try_from("Hello, World!").expect("valid line");
+        let to_append = Line::default();
+
+        let ret = line.append(to_append);
+        assert!(ret.is_none());
+        assert_eq!(line, "Hello, World!");
+    }
+
+    #[test]
+    fn append_too_large() {
+        let truth = std::iter::repeat_n('a', Line::MAX_LENGTH).collect::<String>();
+        let mut line = Line::try_from(truth.as_str()).expect("valid line");
+        let to_append = Line::try_from("a").expect("valid line");
+
+        let ret = line.append(to_append);
+        assert_eq!(ret.as_ref().map(|l| l.as_str()), Some("a"));
+        assert_eq!(line, truth.as_str());
     }
 
     #[test]

@@ -142,6 +142,35 @@ impl Program {
         line.remove_char_at(col)
     }
 
+    /// Merges the line at `line` index with the previous one.
+    ///
+    /// Returns `true` if the lines could be merged, `false` otherwise.
+    ///
+    /// # Notes
+    ///
+    /// The lines can't be merged if:
+    /// * the `line` index is 0,
+    /// * the length of the merged line exceeds the [`Line`]'s character limit.
+    ///
+    /// If the `line` index is greater than the number of lines in the program, the last line is merged with the previous one.
+    pub fn merge_with_previous_line(&mut self, line: usize) -> bool {
+        if line == 0 {
+            return false;
+        }
+
+        let nb_lines = self.lines.len();
+        let line_idx = if line >= nb_lines { nb_lines - 1 } else { line };
+
+        if self.lines[line_idx].len() + self.lines[line_idx - 1].len() > Line::MAX_LENGTH {
+            return false;
+        }
+
+        let line = self.lines.remove(line_idx);
+        self.lines[line_idx - 1].append(line);
+
+        true
+    }
+
     /// Returns `true` if the program is empty, `false` otherwise.
     #[inline(always)]
     pub fn is_empty(&self) -> bool {
@@ -423,6 +452,43 @@ mod tests {
 
         prog.remove_char(Program::MAX_LINES, Line::MAX_LENGTH);
         assert!(prog.lines.is_empty());
+    }
+
+    #[test]
+    fn merge_lines() {
+        let mut prog = Program::from_lines(&["Hello", ", World!"]).expect("valid lines");
+
+        prog.merge_with_previous_line(1);
+        assert_eq!(prog.lines, &["Hello, World!"]);
+    }
+
+    #[test]
+    fn merge_lines_index_too_big() {
+        let mut prog = Program::from_lines(&["Hello", ", World!"]).expect("valid lines");
+
+        prog.merge_with_previous_line(Program::MAX_LINES + 1);
+        assert_eq!(prog.lines, &["Hello, World!"]);
+    }
+
+    #[test]
+    fn merge_lines_idx_at_0() {
+        let mut prog = Program::from_lines(&["Hello", ", World!"]).expect("valid lines");
+
+        prog.merge_with_previous_line(0);
+        assert_eq!(prog.lines, &["Hello", ", World!"]);
+    }
+
+    #[test]
+    fn merge_lines_too_long() {
+        let truth = [
+            "a",
+            "looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong",
+            "line",
+        ];
+        let mut prog = Program::from_lines(&truth).expect("valid lines");
+
+        prog.merge_with_previous_line(1);
+        assert_eq!(prog.lines, &truth);
     }
 
     #[test]
