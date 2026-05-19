@@ -124,14 +124,14 @@ impl Program {
 
     /// Removes a character at the `col` index in the given `line`.
     ///
-    /// If the program or the line is empty, this function does nothing.
+    /// If the program or the line is empty or the `col` index is `0`, this function does nothing.
     ///
     /// If the `line` index exceeds the number of lines in the program, the character will be removed from the last line.
     /// Similarily, if the `col` index exceeds the line's length, the last character will be removed from it.
     ///
     /// Returns `true` if the character is successfully removed, `false` otherwise.
     pub fn remove_char(&mut self, line: usize, col: usize) -> bool {
-        if self.lines.is_empty() {
+        if self.lines.is_empty() || col == 0 {
             return false;
         }
 
