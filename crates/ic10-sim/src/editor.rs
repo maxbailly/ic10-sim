@@ -52,9 +52,14 @@ impl Editor {
                 }
             }
             EditorAction::RemoveCharacter => {
+                if self.cursor.col() == 0 {
+                    // TODO: merge the curr line with the prev line
+                    return;
+                }
+
                 if self
                     .program
-                    .remove_char(self.cursor.line(), self.cursor.col())
+                    .remove_char(self.cursor.line(), self.cursor.col() - 1)
                 {
                     self.cursor.move_left();
                 }
