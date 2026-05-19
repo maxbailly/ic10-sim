@@ -13,8 +13,16 @@ pub(crate) enum EditorAction {
     AddCharacter(char),
     /// Removes a character from the program.
     RemoveCharacter,
-    /// Insert a new line in the program
+    /// Insert a new line in the program.
     InsertNewLine,
+    /// Move cursor one cell to the left.
+    MoveCursorLeft,
+    /// Move cursor one cell to the right.
+    MoveCursorRight,
+    /// Move cursor one cell up.
+    MoveCursorUp,
+    /// Move cursor one cell down.
+    MoveCursorDown,
 }
 
 impl EditorAction {
@@ -42,6 +50,21 @@ impl EditorAction {
                 code: KeyCode::Enter,
                 ..
             }) => Some(Self::InsertNewLine),
+            Event::Key(KeyEvent {
+                code: KeyCode::Left,
+                ..
+            }) => Some(Self::MoveCursorLeft),
+            Event::Key(KeyEvent {
+                code: KeyCode::Right,
+                ..
+            }) => Some(Self::MoveCursorRight),
+            Event::Key(KeyEvent {
+                code: KeyCode::Up, ..
+            }) => Some(Self::MoveCursorUp),
+            Event::Key(KeyEvent {
+                code: KeyCode::Down,
+                ..
+            }) => Some(Self::MoveCursorDown),
             // Unmatching inputs
             _ => None,
         }

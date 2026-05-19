@@ -158,6 +158,13 @@ impl PartialEq<&str> for Line {
     }
 }
 
+impl PartialEq<str> for Line {
+    #[inline(always)]
+    fn eq(&self, other: &str) -> bool {
+        self.inner == *other
+    }
+}
+
 impl std::fmt::Display for Line {
     #[inline(always)]
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

@@ -94,7 +94,6 @@ impl Program {
     /// * If the `line` index exceeds the number of lines in the program, the new line is inserted at the end.
     /// * If the `col` index is 0, the new line will be inserted before the current line.
     /// * If the `col` index is greater than the length of the line, the new line is inserted after the current line.
-    #[inline(always)]
     pub fn insert_new_line_at(&mut self, line: usize, col: usize) -> bool {
         if self.lines.len() >= Self::MAX_LINES {
             return false;
@@ -143,7 +142,34 @@ impl Program {
         line.remove_char_at(col)
     }
 
+    /// Returns `true` if the program is empty, `false` otherwise.
+    #[inline(always)]
+    pub fn is_empty(&self) -> bool {
+        self.lines.is_empty()
+    }
+
+    /// Returns the numbers of lines contained in the program.
+    #[inline(always)]
+    pub fn nb_lines(&self) -> usize {
+        self.lines.len()
+    }
+
+    /// Returns a reference to the line at the given index.
+    ///
+    /// If the given index is greater than the number of lines in the program, the last line is returned.
+    #[inline(always)]
+    pub fn line(&self, idx: usize) -> &Line {
+        let idx = if idx >= self.lines.len() {
+            self.lines.len() - 1
+        } else {
+            idx
+        };
+
+        &self.lines[idx]
+    }
+
     /// Returns an iterator over the entire lines contained in the program.
+    #[inline(always)]
     pub fn lines(&self) -> std::slice::Iter<'_, Line> {
         self.lines.iter()
     }
@@ -397,5 +423,21 @@ mod tests {
 
         prog.remove_char(Program::MAX_LINES, Line::MAX_LENGTH);
         assert!(prog.lines.is_empty());
+    }
+
+    #[test]
+    fn line() {
+        let prog = Program::from_lines(&["Hello", "World!"]).expect("valid lines");
+        let line = prog.line(1);
+
+        assert_eq!(line, "World!");
+    }
+
+    #[test]
+    fn line_idx_too_big() {
+        let prog = Program::from_lines(&["Hello", "World!"]).expect("valid lines");
+        let line = prog.line(Program::MAX_LINES + 1);
+
+        assert_eq!(line, "World!");
     }
 }

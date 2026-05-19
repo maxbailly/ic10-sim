@@ -67,6 +67,62 @@ impl Editor {
                     self.cursor.set_position(self.cursor.line() + 1, 0);
                 }
             }
+            EditorAction::MoveCursorLeft => {
+                if self.cursor.col() != 0 {
+                    self.cursor.move_left();
+                    return;
+                }
+
+                if self.cursor.line() == 0 {
+                    return;
+                }
+
+                let prev_line_idx = self.cursor.line() - 1;
+                let prev_line_len = self.program.line(prev_line_idx).len();
+
+                self.cursor.set_position(prev_line_idx, prev_line_len);
+            }
+            EditorAction::MoveCursorRight => {
+                if self.program.is_empty() {
+                    return;
+                }
+
+                let line_len = self.program.line(self.cursor.line()).len();
+                if self.cursor.col() < line_len {
+                    self.cursor.move_right();
+                    return;
+                }
+
+                let nb_lines = self.program.lines().count();
+                if self.cursor.line() >= nb_lines - 1 {
+                    return;
+                }
+
+                let next_line_idx = self.cursor.line() + 1;
+                self.cursor.set_position(next_line_idx, 0);
+            }
+            EditorAction::MoveCursorUp => {
+                if self.cursor.line() == 0 || self.program.is_empty() {
+                    return;
+                }
+
+                self.cursor.move_up();
+                let line_len = self.program.line(self.cursor.line()).len();
+                if self.cursor.col() > line_len {
+                    self.cursor.set_col(line_len);
+                }
+            }
+            EditorAction::MoveCursorDown => {
+                if self.program.is_empty() || self.cursor.line() >= self.program.nb_lines() - 1 {
+                    return;
+                }
+
+                self.cursor.move_down();
+                let line_len = self.program.line(self.cursor.line()).len();
+                if self.cursor.col() > line_len {
+                    self.cursor.set_col(line_len);
+                }
+            }
         }
     }
 
@@ -166,8 +222,20 @@ impl Cursor {
     /// Sets the cursor position.
     #[inline(always)]
     fn set_position(&mut self, line: usize, col: usize) {
-        self.line = line.min(u16::MAX as usize) as u16;
+        self.set_col(col);
+        self.set_line(line);
+    }
+
+    /// Set the column position of the cursor.
+    #[inline(always)]
+    fn set_col(&mut self, col: usize) {
         self.col = col.min(u16::MAX as usize) as u16;
+    }
+
+    /// Set the line position of the cursor.
+    #[inline(always)]
+    fn set_line(&mut self, line: usize) {
+        self.line = line.min(u16::MAX as usize) as u16;
     }
 
     /// Moves the cursor one cell to the right.
@@ -180,6 +248,18 @@ impl Cursor {
     #[inline(always)]
     fn move_left(&mut self) {
         self.col = self.col.saturating_sub(1)
+    }
+
+    /// Moves the cursor one cell up.
+    #[inline(always)]
+    fn move_up(&mut self) {
+        self.line = self.line.saturating_sub(1)
+    }
+
+    /// Moves the cursor one cell down.
+    #[inline(always)]
+    fn move_down(&mut self) {
+        self.line = self.line.saturating_add(1)
     }
 }
 
@@ -263,6 +343,40 @@ mod tests {
             };
 
             cursor.move_right();
+            assert_eq!(cursor, truth);
+        }
+
+        #[test]
+        fn move_up() {
+            let truth = Cursor {
+                line: 0,
+                col: 0,
+                visible: false,
+            };
+            let mut cursor = Cursor {
+                line: 1,
+                col: 0,
+                visible: false,
+            };
+
+            cursor.move_up();
+            assert_eq!(cursor, truth);
+        }
+
+        #[test]
+        fn move_down() {
+            let truth = Cursor {
+                line: 1,
+                col: 0,
+                visible: false,
+            };
+            let mut cursor = Cursor {
+                line: 0,
+                col: 0,
+                visible: false,
+            };
+
+            cursor.move_down();
             assert_eq!(cursor, truth);
         }
     }
