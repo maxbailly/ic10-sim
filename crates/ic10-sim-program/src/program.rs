@@ -131,7 +131,7 @@ impl Program {
     ///
     /// Returns `true` if the character is successfully removed, `false` otherwise.
     pub fn remove_char(&mut self, line: usize, col: usize) -> bool {
-        if self.lines.is_empty() || col == 0 {
+        if self.lines.is_empty() {
             return false;
         }
 

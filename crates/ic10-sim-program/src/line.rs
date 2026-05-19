@@ -50,7 +50,7 @@ impl Line {
     ///
     /// Returns `true` if the line is successfully removed, `false` otherwise.
     pub fn remove_char_at(&mut self, pos: usize) -> bool {
-        if self.is_empty() || pos == 0 {
+        if self.is_empty() {
             return false;
         }
 
@@ -298,17 +298,6 @@ mod tests {
         assert!(ret);
         assert_eq!(line.len(), base.chars().count() - 1);
         assert_eq!(line, "Hello😀, World");
-    }
-
-    #[test]
-    fn remove_char_at_line_beginning() {
-        let base = "Hello, World!";
-        let mut line = Line::try_from(base).expect("valid line");
-
-        let ret = line.remove_char_at(0);
-        assert!(!ret);
-        assert_eq!(line.len(), base.chars().count());
-        assert_eq!(line, base);
     }
 
     #[test]
