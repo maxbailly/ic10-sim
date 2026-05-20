@@ -53,7 +53,17 @@ impl Editor {
             }
             EditorAction::RemoveCharacter => {
                 if self.cursor.col() == 0 {
-                    // TODO: merge the curr line with the prev line
+                    if self.cursor.line() == 0 {
+                        return;
+                    }
+
+                    let prev_line_len = self.program.line(self.cursor.line() - 1).len();
+                    let merged = self.program.merge_with_previous_line(self.cursor.line());
+                    if merged {
+                        self.cursor
+                            .set_position(self.cursor.line() - 1, prev_line_len);
+                    }
+
                     return;
                 }
 
