@@ -1,10 +1,10 @@
 use ic10_sim_program::Program;
 use ratatui::crossterm::event::Event;
-use ratatui::layout::Position;
+use ratatui::layout::{Constraint, Layout, Position};
 use ratatui::prelude::{Buffer, Rect};
 use ratatui::style::Style;
 use ratatui::text::{Line, Text};
-use ratatui::widgets::{Block, BorderType, Paragraph, Widget};
+use ratatui::widgets::{Block, BorderType, Borders, Paragraph, Widget};
 
 use crate::actions::EditorAction;
 use crate::app::AppState;
@@ -108,7 +108,7 @@ impl Editor {
                     return;
                 }
 
-                let nb_lines = self.program.lines().count();
+                let nb_lines = self.program.iter().count();
                 if self.cursor.line() >= nb_lines - 1 {
                     return;
                 }
@@ -174,10 +174,9 @@ impl Widget for &Editor {
             border
         };
 
-        let text = Text::from_iter(self.program.lines().map(|line| line.as_str()));
-        Paragraph::new(text).render(inner_area, buf);
-
-        self.cursor.render(inner_area, buf);
+        EditorBox::from_iter(self.program.iter().map(|line| line.as_str()))
+            .with_cursor(self.cursor)
+            .render(inner_area, buf);
         border.render(area, buf);
     }
 }
@@ -303,6 +302,63 @@ impl Widget for &Cursor {
         };
 
         cell.set_style(Style::new().reversed());
+    }
+}
+
+/* ---------- */
+
+/// A block of text composed with a margin and a the text block itself.
+struct EditorBox<'a> {
+    text: Text<'a>,
+    cursor: Option<Cursor>,
+}
+
+impl<'a> EditorBox<'a> {
+    /// Creates a new [`EditorBox`] from an iterator of object convertible to a `&str`.
+    fn from_iter<I: Iterator<Item = &'a T>, T: AsRef<str> + ?Sized + 'a>(it: I) -> Self {
+        let text = Text::from_iter(it.map(|i| i.as_ref()));
+        Self { text, cursor: None }
+    }
+
+    /// Add a cursor to be rendered.
+    fn with_cursor(mut self, cursor: Cursor) -> Self {
+        self.cursor = Some(cursor);
+        self
+    }
+}
+
+impl Widget for EditorBox<'_> {
+    fn render(self, area: Rect, buf: &mut Buffer)
+    where
+        Self: Sized,
+    {
+        let nb_lines = self.text.iter().len();
+        let margin_width = nb_lines.to_string().len();
+        let lines = if nb_lines == 0 {
+            vec![String::from("0")]
+        } else {
+            (0..nb_lines)
+                .map(|n| format!("{n:>margin_width$}"))
+                .collect::<Vec<_>>()
+        };
+
+        let layout = Layout::horizontal([
+            Constraint::Length(margin_width as u16 + 1),
+            Constraint::Fill(1),
+        ]);
+        let [margin_area, text_area] = area.layout(&layout);
+        let margin_text = Text::from_iter(lines.iter().map(|s| s.as_str()));
+
+        Block::new()
+            .borders(Borders::RIGHT)
+            .render(margin_area, buf);
+        Paragraph::new(margin_text).render(margin_area, buf);
+
+        Paragraph::new(self.text).render(text_area, buf);
+
+        if let Some(cursor) = self.cursor {
+            cursor.render(text_area, buf);
+        }
     }
 }
 

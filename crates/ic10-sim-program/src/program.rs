@@ -98,7 +98,9 @@ impl Program {
         if self.lines.len() >= Self::MAX_LINES {
             return false;
         }
+
         if self.lines.is_empty() {
+            self.lines.push(Line::new());
             self.lines.push(Line::new());
             return true;
         }
@@ -197,9 +199,15 @@ impl Program {
         &self.lines[idx]
     }
 
+    /// Returns a slice containing the program's lines.
+    #[inline(always)]
+    pub fn lines(&self) -> &[Line] {
+        &self.lines
+    }
+
     /// Returns an iterator over the entire lines contained in the program.
     #[inline(always)]
-    pub fn lines(&self) -> std::slice::Iter<'_, Line> {
+    pub fn iter(&self) -> std::slice::Iter<'_, Line> {
         self.lines.iter()
     }
 
