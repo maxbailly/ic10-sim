@@ -243,6 +243,12 @@ impl Cursor {
         self.visible = !self.visible;
     }
 
+    /// Returns `true` if the cursor is visible, `false` otherwise.
+    #[inline(always)]
+    fn is_visible(&self) -> bool {
+        self.visible
+    }
+
     /// Sets the cursor position.
     #[inline(always)]
     fn set_position(&mut self, line: usize, col: usize) {
@@ -334,23 +340,31 @@ impl Widget for EditorBox<'_> {
     {
         let nb_lines = self.text.iter().len();
         let margin_width = nb_lines.to_string().len();
-        let lines = if nb_lines == 0 {
-            vec![String::from("0")]
+
+        let mut lines = if nb_lines == 0 {
+            vec![Line::from("0")]
         } else {
             (0..nb_lines)
-                .map(|n| format!("{n:>margin_width$}"))
+                .map(|n| Line::from(format!("{n:>margin_width$}")))
                 .collect::<Vec<_>>()
         };
+        if let Some(cursor) = self.cursor
+            && cursor.is_visible()
+        {
+            let styled_line = lines.remove(cursor.line()).style(Style::new().white());
+            lines.insert(cursor.line(), styled_line);
+        }
 
         let layout = Layout::horizontal([
             Constraint::Length(margin_width as u16 + 1),
             Constraint::Fill(1),
         ]);
         let [margin_area, text_area] = area.layout(&layout);
-        let margin_text = Text::from_iter(lines.iter().map(|s| s.as_str()));
+        let margin_text = Text::from_iter(lines);
 
         Block::new()
             .borders(Borders::RIGHT)
+            .style(Style::new().dark_gray())
             .render(margin_area, buf);
         Paragraph::new(margin_text).render(margin_area, buf);
 
