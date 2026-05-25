@@ -11,8 +11,8 @@ pub(crate) enum EditorAction {
     ToggleMode,
     /// Add the character to the program.
     AddCharacter(char),
-    /// Removes a character from the program.
-    RemoveCharacter,
+    /// Removes the previous character from the program.
+    RemovePrevCharacter,
     /// Insert a new line in the program.
     InsertNewLine,
     /// Move cursor one cell to the left.
@@ -45,7 +45,7 @@ impl EditorAction {
             Event::Key(KeyEvent {
                 code: KeyCode::Backspace,
                 ..
-            }) => Some(Self::RemoveCharacter),
+            }) => Some(Self::RemovePrevCharacter),
             Event::Key(KeyEvent {
                 code: KeyCode::Enter,
                 ..

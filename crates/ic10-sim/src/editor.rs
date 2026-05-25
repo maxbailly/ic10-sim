@@ -51,7 +51,7 @@ impl Editor {
                     self.cursor.move_right();
                 }
             }
-            EditorAction::RemoveCharacter => {
+            EditorAction::RemovePrevCharacter => {
                 if self.cursor.col() == 0 {
                     if self.cursor.line() == 0 {
                         return;
