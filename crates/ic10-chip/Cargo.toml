@@ -1,0 +1,6 @@
+[package]
+name = "ic10-chip"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
