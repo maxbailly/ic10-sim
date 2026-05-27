@@ -1,5 +1,5 @@
 [package]
-name = "ic10-chip"
+name = "ic10-sim-chip"
 version.workspace = true
 edition.workspace = true
 
