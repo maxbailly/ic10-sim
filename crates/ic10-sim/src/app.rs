@@ -1,6 +1,9 @@
 use ratatui::DefaultTerminal;
 use ratatui::crossterm;
 use ratatui::crossterm::event::Event;
+use ratatui::layout::Constraint;
+use ratatui::layout::Constraint::Fill;
+use ratatui::layout::Layout;
 use ratatui::prelude::{Buffer, Rect};
 use ratatui::widgets::Widget;
 
@@ -9,6 +12,7 @@ use std::time::Duration;
 
 use crate::actions::GlobalAction;
 use crate::actions::IdleAction;
+use crate::chip::Chip;
 use crate::editor::Editor;
 
 /* ---------- */
@@ -22,6 +26,8 @@ pub(crate) struct App {
 
     /// Editor widget.
     editor: Editor,
+    /// Chip widget.
+    chip: Chip,
 }
 
 impl App {
@@ -31,7 +37,8 @@ impl App {
         Self {
             running: true,
             state: AppState::default(),
-            editor: Editor::new(),
+            editor: Editor::default(),
+            chip: Chip::default(),
         }
     }
 
@@ -70,7 +77,11 @@ impl Widget for &App {
     where
         Self: Sized,
     {
-        self.editor.render(area, buf);
+        let [editor_area, chip_area] =
+            Layout::horizontal([Constraint::Min(100), Fill(16)]).areas(area);
+
+        self.editor.render(editor_area, buf);
+        self.chip.render(chip_area, buf);
     }
 }
 

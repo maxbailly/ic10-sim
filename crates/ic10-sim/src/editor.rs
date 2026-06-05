@@ -22,12 +22,6 @@ pub(crate) struct Editor {
 }
 
 impl Editor {
-    /// Returns a new default [`Editor`] widget.
-    #[inline(always)]
-    pub(crate) fn new() -> Self {
-        Self::default()
-    }
-
     /// Handle events when the editor is active.
     pub(crate) fn handle_event(&mut self, app_state: &mut AppState, event: Event) {
         let Some(action) = EditorAction::from_event(event) else {
