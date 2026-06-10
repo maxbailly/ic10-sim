@@ -73,6 +73,11 @@ impl App {
             return;
         }
 
+        // If the terminal is too small, do not hanfle non-global events.
+        if self.terminal_too_small {
+            return;
+        }
+
         match self.state {
             AppState::Idle => self.handle_event(event),
             AppState::Editing => self.editor.handle_event(&mut self.state, event),
