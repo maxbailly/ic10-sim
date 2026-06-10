@@ -111,7 +111,7 @@ impl Widget for &App {
         }
 
         let [editor_area, chip_area] =
-            Layout::horizontal([Constraint::Min(100), Constraint::Length(16)]).areas(area);
+            Layout::horizontal([Constraint::Min(100), Constraint::Length(25)]).areas(area);
 
         self.editor.render(editor_area, buf);
         self.chip.render(chip_area, buf);
