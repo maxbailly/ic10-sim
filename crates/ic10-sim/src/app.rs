@@ -39,7 +39,6 @@ pub(crate) struct App {
 
 impl App {
     /// Creates a new default [`App`].
-    #[inline(always)]
     fn new() -> Self {
         let (term_width, term_height) = ratatui::crossterm::terminal::size().unwrap_or_default();
         let terminal_too_small =
