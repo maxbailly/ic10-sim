@@ -2,6 +2,7 @@ mod actions;
 mod app;
 mod chip;
 mod editor;
+mod too_small;
 
 /* ---------- */
 

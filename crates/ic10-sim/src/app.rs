@@ -14,11 +14,12 @@ use crate::actions::GlobalAction;
 use crate::actions::IdleAction;
 use crate::chip::Chip;
 use crate::editor::Editor;
+use crate::too_small::TooSmall;
 
 /* ---------- */
 
 /// Minimal size for the UI to be kind of usable.
-const MIN_TERM_SIZE: Size = Size::new(120, 50);
+const MIN_TERM_SIZE: Size = Size::new(130, 40);
 
 /* ---------- */
 
@@ -41,9 +42,13 @@ impl App {
     /// Creates a new default [`App`].
     #[inline(always)]
     fn new() -> Self {
+        let (term_width, term_height) = ratatui::crossterm::terminal::size().unwrap_or_default();
+        let terminal_too_small =
+            term_height < MIN_TERM_SIZE.height || term_width < MIN_TERM_SIZE.width;
+
         Self {
             running: true,
-            terminal_too_small: false,
+            terminal_too_small,
             state: AppState::default(),
             editor: Editor::default(),
             chip: Chip::default(),
@@ -102,7 +107,7 @@ impl Widget for &App {
         Self: Sized,
     {
         if self.terminal_too_small {
-            // TODO: design the popup that tells the user to resize its terminal
+            TooSmall.render(area, buf);
             return;
         }
 
