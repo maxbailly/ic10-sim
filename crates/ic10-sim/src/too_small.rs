@@ -1,5 +1,3 @@
-use std::borrow::Cow;
-
 use ratatui::layout::Constraint;
 use ratatui::prelude::{Buffer, Rect};
 use ratatui::text::Text;
@@ -22,13 +20,14 @@ impl Widget for TooSmall {
         // TODO: Print an error message in the popup telling that something went wrong
         // when trying to get the terminal current size.
         let (term_width, term_height) = ratatui::crossterm::terminal::size().unwrap_or_default();
+        let curr_term_size_string =
+            format!("Current terminal size: W: {term_width} * H: {term_height}");
+
         let lines = [
-            Cow::from("Your terminal is a bit too small"),
-            Cow::from("Please resize your terminal to at least W: 130 * H: 40"),
-            Cow::from(""),
-            Cow::from(format!(
-                "Current terminal size: W: {term_width} * H: {term_height}"
-            )),
+            "Your terminal is a bit too small",
+            "Please resize your terminal to at least W: 130 * H: 40",
+            "",
+            &curr_term_size_string,
         ];
 
         let max_line_len = lines
