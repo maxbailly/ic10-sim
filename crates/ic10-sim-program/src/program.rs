@@ -416,7 +416,7 @@ mod tests {
 
         let ret = prog.insert_new_line_at(1, 0);
         assert!(ret);
-        assert_eq!(prog.lines, [""]);
+        assert_eq!(prog.lines, ["", ""]);
     }
 
     #[test]
