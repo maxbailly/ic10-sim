@@ -2,7 +2,6 @@ use ratatui::DefaultTerminal;
 use ratatui::crossterm;
 use ratatui::crossterm::event::Event;
 use ratatui::layout::Constraint;
-use ratatui::layout::Constraint::Fill;
 use ratatui::layout::Layout;
 use ratatui::prelude::{Buffer, Rect, Size};
 use ratatui::widgets::Widget;
@@ -112,7 +111,7 @@ impl Widget for &App {
         }
 
         let [editor_area, chip_area] =
-            Layout::horizontal([Constraint::Min(100), Fill(16)]).areas(area);
+            Layout::horizontal([Constraint::Min(100), Constraint::Length(16)]).areas(area);
 
         self.editor.render(editor_area, buf);
         self.chip.render(chip_area, buf);
