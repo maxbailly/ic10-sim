@@ -1,4 +1,7 @@
-use ratatui::crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
+use ratatui::{
+    crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers},
+    layout::Size,
+};
 
 /* ---------- */
 
@@ -7,6 +10,8 @@ use ratatui::crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 pub(crate) enum GlobalAction {
     /// Quit the TUI application.
     Quit,
+    /// The terminal window has been resized
+    Resize(Size),
 }
 
 impl GlobalAction {
@@ -20,6 +25,7 @@ impl GlobalAction {
                 modifiers: KeyModifiers::CONTROL,
                 ..
             }) => Some(Self::Quit),
+            Event::Resize(column, row) => Some(Self::Resize(Size::new(*column, *row))),
             // Unmatching inputs
             _ => None,
         }

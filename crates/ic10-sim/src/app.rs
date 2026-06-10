@@ -4,7 +4,7 @@ use ratatui::crossterm::event::Event;
 use ratatui::layout::Constraint;
 use ratatui::layout::Constraint::Fill;
 use ratatui::layout::Layout;
-use ratatui::prelude::{Buffer, Rect};
+use ratatui::prelude::{Buffer, Rect, Size};
 use ratatui::widgets::Widget;
 
 use std::io::Result as IoResult;
@@ -17,10 +17,17 @@ use crate::editor::Editor;
 
 /* ---------- */
 
+/// Minimal size for the UI to be kind of usable.
+const MIN_TERM_SIZE: Size = Size::new(120, 50);
+
+/* ---------- */
+
 /// Main UI of the app.
 pub(crate) struct App {
     /// Is the app currently running?
     running: bool,
+    /// Is the terminal size is smaller than [`MIN_TERM_SIZE`]?
+    terminal_too_small: bool,
     /// App state.
     state: AppState,
 
@@ -36,6 +43,7 @@ impl App {
     fn new() -> Self {
         Self {
             running: true,
+            terminal_too_small: false,
             state: AppState::default(),
             editor: Editor::default(),
             chip: Chip::default(),
@@ -45,6 +53,22 @@ impl App {
     /// Updates the UI according the given input.
     #[inline(always)]
     fn update(&mut self, event: Event) {
+        // After handling global events, here's no need to handle other events.
+        if let Some(global_action) = GlobalAction::from_event(&event) {
+            match global_action {
+                GlobalAction::Quit => {
+                    self.running = false;
+                    return;
+                }
+                GlobalAction::Resize(size) => {
+                    self.terminal_too_small =
+                        size.height < MIN_TERM_SIZE.height || size.width < MIN_TERM_SIZE.width
+                }
+            }
+
+            return;
+        }
+
         match self.state {
             AppState::Idle => self.handle_event(event),
             AppState::Editing => self.editor.handle_event(&mut self.state, event),
@@ -77,6 +101,11 @@ impl Widget for &App {
     where
         Self: Sized,
     {
+        if self.terminal_too_small {
+            // TODO: design the popup that tells the user to resize its terminal
+            return;
+        }
+
         let [editor_area, chip_area] =
             Layout::horizontal([Constraint::Min(100), Fill(16)]).areas(area);
 
