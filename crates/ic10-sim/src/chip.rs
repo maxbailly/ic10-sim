@@ -1,5 +1,4 @@
 use ic10_sim_chip::Chip as SimChip;
-use ratatui::layout::Constraint::Fill;
 use ratatui::layout::{Constraint, Layout};
 use ratatui::prelude::{Buffer, Rect};
 use ratatui::text::{Line, Text};
@@ -19,7 +18,7 @@ impl Widget for &Chip {
         Self: Sized,
     {
         let [registers_area, stack_area] =
-            Layout::vertical([Constraint::Length(20), Fill(10)]).areas(area);
+            Layout::vertical([Constraint::Length(20), Constraint::Min(10)]).areas(area);
 
         render_chip_registers(&self.chip, registers_area, buf);
         render_chip_stack(&self.chip, stack_area, buf);
