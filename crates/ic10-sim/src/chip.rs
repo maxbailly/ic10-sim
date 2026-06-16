@@ -28,7 +28,7 @@ impl Widget for &Chip {
 
 /* ---------- */
 
-/// Renders the regirsters block of the chip UI.
+/// Renders the registers block of the chip UI.
 fn render_chip_registers(chip: &SimChip, area: Rect, buf: &mut Buffer) {
     const LABELS: [&str; 18] = [
         "sp:  ", "ra:  ", "r0:  ", "r1:  ", "r2:  ", "r3:  ", "r4:  ", "r5:  ", "r6:  ", "r7:  ",
@@ -56,7 +56,7 @@ fn render_chip_registers(chip: &SimChip, area: Rect, buf: &mut Buffer) {
 
 /* ---------- */
 
-/// Renders the regirsters block of the chip UI.
+/// Renders the stack block of the chip UI.
 fn render_chip_stack(chip: &SimChip, area: Rect, buf: &mut Buffer) {
     const LABELS: [&str; 512] = [
         "0: ", "1: ", "2: ", "3: ", "4: ", "5: ", "6: ", "7: ", "8: ", "9: ", "10: ", "11: ",
