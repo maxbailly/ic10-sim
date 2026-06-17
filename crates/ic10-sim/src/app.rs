@@ -14,6 +14,7 @@ use crate::actions::IdleAction;
 use crate::chip::Chip;
 use crate::editor::Editor;
 use crate::too_small::TooSmall;
+use ic10_sim_chip::Chip as SimChip;
 
 /* ---------- */
 
@@ -33,8 +34,9 @@ pub(crate) struct App {
 
     /// Editor widget.
     editor: Editor,
-    /// Chip widget.
-    chip: Chip,
+
+    /// Chipset state.
+    chip: SimChip,
 }
 
 impl App {
@@ -49,7 +51,7 @@ impl App {
             terminal_too_small,
             state: AppState::default(),
             editor: Editor::default(),
-            chip: Chip::default(),
+            chip: SimChip::default(),
         }
     }
 
@@ -118,7 +120,7 @@ impl Widget for &App {
             Layout::horizontal([Constraint::Min(100), Constraint::Length(25)]).areas(area);
 
         self.editor.render(editor_area, buf);
-        self.chip.render(chip_area, buf);
+        Chip::new(&self.chip).render(chip_area, buf);
     }
 }
 

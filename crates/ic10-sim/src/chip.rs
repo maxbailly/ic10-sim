@@ -7,21 +7,25 @@ use ratatui::widgets::{Block, BorderType, Paragraph, Widget};
 /* ---------- */
 
 /// Widget to display the chip's registers and stack values.
-#[derive(Debug, Default)]
-pub(crate) struct Chip {
-    chip: SimChip,
+#[derive(Debug)]
+pub(crate) struct Chip<'a> {
+    chip: &'a SimChip,
 }
 
-impl Widget for &Chip {
-    fn render(self, area: Rect, buf: &mut Buffer)
-    where
-        Self: Sized,
-    {
+impl<'a> Chip<'a> {
+    /// Create a new [`Chip`] widget.
+    pub(crate) fn new(chip: &'a SimChip) -> Self {
+        Self { chip }
+    }
+}
+
+impl Widget for Chip<'_> {
+    fn render(self, area: Rect, buf: &mut Buffer) {
         let [registers_area, stack_area] =
             Layout::vertical([Constraint::Length(20), Constraint::Min(10)]).areas(area);
 
-        render_chip_registers(&self.chip, registers_area, buf);
-        render_chip_stack(&self.chip, stack_area, buf);
+        render_chip_registers(self.chip, registers_area, buf);
+        render_chip_stack(self.chip, stack_area, buf);
     }
 }
 
