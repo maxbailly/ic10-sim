@@ -136,10 +136,6 @@ pub(crate) fn run(terminal: &mut DefaultTerminal) -> IoResult<()> {
             continue;
         };
 
-        if let Some(GlobalAction::Quit) = GlobalAction::from_event(&event) {
-            break;
-        }
-
         app.update(event);
     }
 
