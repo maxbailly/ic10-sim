@@ -1,5 +1,7 @@
 use ratatui::crossterm::event::{Event, KeyCode, KeyEvent};
 
+use super::FromEvent;
+
 /* ---------- */
 
 /// Actions that must be handled when the app is idling.
@@ -11,11 +13,11 @@ pub(crate) enum IdleAction {
     StartEdition,
 }
 
-impl IdleAction {
+impl FromEvent for IdleAction {
     /// Consumes and converts an [`Event`] to a [`IdleAction`] if the given event matches.
     ///
     /// If the event doesn't match anything, returns `None`.
-    pub(crate) fn from_event(event: Event) -> Option<Self> {
+    fn from_event(event: &Event) -> Option<Self> {
         match event {
             Event::Key(KeyEvent {
                 code: KeyCode::Char('q'),

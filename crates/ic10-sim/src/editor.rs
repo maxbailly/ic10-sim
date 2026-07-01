@@ -7,6 +7,7 @@ use ratatui::text::{Line, Text};
 use ratatui::widgets::{Block, BorderType, Borders, Paragraph, Widget};
 
 use crate::actions::EditorAction;
+use crate::actions::FromEvent;
 use crate::app::AppState;
 
 /* ---------- */
@@ -23,7 +24,7 @@ pub(crate) struct Editor {
 
 impl Editor {
     /// Handle events when the editor is active.
-    pub(crate) fn handle_event(&mut self, app_state: &mut AppState, event: Event) {
+    pub(crate) fn handle_event(&mut self, app_state: &mut AppState, event: &Event) {
         let Some(action) = EditorAction::from_event(event) else {
             return;
         };

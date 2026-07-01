@@ -3,6 +3,8 @@ use ratatui::{
     layout::Size,
 };
 
+use super::FromEvent;
+
 /* ---------- */
 
 /// Actions that must be handled from whatever state the UI is.
@@ -14,11 +16,11 @@ pub(crate) enum GlobalAction {
     Resize(Size),
 }
 
-impl GlobalAction {
+impl FromEvent for GlobalAction {
     /// Converts an [`Event`] to a [`GlobalAction`] if the given event matches.
     ///
     /// If the event doesn't match anything, returns `None`.
-    pub(crate) fn from_event(event: &Event) -> Option<Self> {
+    fn from_event(event: &Event) -> Option<Self> {
         match event {
             Event::Key(KeyEvent {
                 code: KeyCode::Char('c'),

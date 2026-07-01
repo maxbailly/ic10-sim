@@ -1,5 +1,7 @@
 use ratatui::crossterm::event::{Event, KeyCode, KeyEvent};
 
+use crate::actions::FromEvent;
+
 /* ---------- */
 
 /// Actions that must be handled when the app is idling.
@@ -25,11 +27,11 @@ pub(crate) enum EditorAction {
     MoveCursorDown,
 }
 
-impl EditorAction {
+impl FromEvent for EditorAction {
     /// Consumes and converts an [`Event`] to a [`IdleAction`] if the given event matches.
     ///
     /// If the event doesn't match anything, returns `None`.
-    pub(crate) fn from_event(event: Event) -> Option<Self> {
+    fn from_event(event: &Event) -> Option<Self> {
         match event {
             Event::Key(KeyEvent {
                 code: KeyCode::Esc, ..
@@ -41,7 +43,7 @@ impl EditorAction {
             Event::Key(KeyEvent {
                 code: KeyCode::Char(c),
                 ..
-            }) => Some(Self::AddCharacter(c)),
+            }) => Some(Self::AddCharacter(*c)),
             Event::Key(KeyEvent {
                 code: KeyCode::Backspace,
                 ..

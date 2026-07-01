@@ -9,6 +9,7 @@ use ratatui::widgets::Widget;
 use std::io::Result as IoResult;
 use std::time::Duration;
 
+use crate::actions::FromEvent;
 use crate::actions::GlobalAction;
 use crate::actions::IdleAction;
 use crate::chip::Chip;
@@ -81,13 +82,13 @@ impl App {
 
         match self.state {
             AppState::Idle => self.handle_event(event),
-            AppState::Editing => self.editor.handle_event(&mut self.state, event),
+            AppState::Editing => self.editor.handle_event(&mut self.state, &event),
         }
     }
 
     /// Handles event happening when the app is idling.
     fn handle_event(&mut self, event: Event) {
-        let action = IdleAction::from_event(event);
+        let action = IdleAction::from_event(&event);
 
         match action {
             Some(IdleAction::Quit) => self.running = false,
